@@ -10,17 +10,16 @@ async function login(req, res, next) {
 
   try {
     //query
-    const user = `SELECT * FROM students WHERE email='${email}'`;
-
+    const user = `SELECT * FROM authentication WHERE email='${email}'`;
     connection.query(user, (err, result) => {
       if (result.length) {
         bcrypt.compare(
           password,
           result[0].password,
           function (err, isValidPassword) {
+            console.log(isValidPassword);
             if (isValidPassword) {
               const userObj = {
-                student_id: result[0].student_id,
                 email: result[0].email,
                 role: result[0].role,
               };
@@ -36,10 +35,9 @@ async function login(req, res, next) {
                 signed: true,
               });
               //
-              res.locals.loggedInUser = userObj;
-              res.send(userObj);
+              res.status(200).json(userObj);
             } else {
-              res.status(500).send("Email or password doesnot match.");
+              res.status(500).json({ msg: "Sorry! Something went wrong." });
             }
           }
         );
@@ -48,13 +46,27 @@ async function login(req, res, next) {
       }
     });
   } catch (err) {
-    console.log(err);
+    next(err.message);
   }
 }
 
+/////////////////////////
+//keep login function
+///////////////////////
+async function keepLogin(req, res, next) {
+  try {
+    if (req.user.email) {
+      return res.status(200).send(req.user);
+    } else {
+      return res.status(500).send("Sorry! Something went wrong.");
+    }
+  } catch (err) {
+    return res.status(500).send(err.message);
+  }
+}
 //logout controller
 function logout(req, res) {
   res.clearCookie(process.env.COOKIE_NAME);
   res.status(200).send("Logout successful!");
 }
-module.exports = { login, logout };
+module.exports = { login, logout, keepLogin };

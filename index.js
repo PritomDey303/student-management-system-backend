@@ -10,6 +10,10 @@ const cookieParser = require("cookie-parser");
 //importing middlewares
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
+const {
+  errorHandler,
+  notFoundHandler,
+} = require("c:/users/walton/documents/chat-application/middlewares/common/errorhandler");
 //port
 const port = 5000;
 
@@ -38,4 +42,9 @@ app.use("/authentication", authenticationRoute);
 app.use("/signup", signUpRoute);
 app.use("/academicinfo", academicInfoRoute);
 app.use("/students", studentsRoute);
+
+//not found handler
+app.use(notFoundHandler);
+//errorHandler
+app.use(errorHandler);
 app.listen(port);

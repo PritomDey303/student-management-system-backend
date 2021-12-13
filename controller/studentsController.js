@@ -2,8 +2,11 @@ const connection = require("../database/databaseConfig");
 
 async function allStudents(req, res, next) {
   try {
-    if (req.user.role === 1) {
-      const students = "SELECT * FROM students";
+    if (req.user.role === 2) {
+      console.log("pritom");
+      const students = `SELECT * FROM students 
+      JOIN personalinfo ON students.student_id=personalinfo.student
+      JOIN educationinfo ON students.student_id=educationinfo.student`;
       connection.query(students, (err, result) => {
         if (err) {
           res.status(500).send(err.message);
@@ -27,16 +30,16 @@ async function singleStudent(req, res, next) {
       const student = `SELECT student_id,email,role FROM students WHERE student_id=${req.user.student_id}`;
       connection.query(student, (err, result) => {
         if (err) {
-          res.status(500).send(err.message);
+          res.status(500).send("Sorry! Something went wrong.");
         } else {
           res.status(200).send(result);
         }
       });
     } else {
-      res.redirect("/");
+      res.status(500).send("Sorry! Something went wrong!").redirect("/");
     }
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(500).send("Sorry! Something went wrong.");
   }
 }
 

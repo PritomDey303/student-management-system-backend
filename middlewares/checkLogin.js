@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const checkLogin = (req, res, next) => {
   let cookies =
     Object.keys(req.signedCookies).length > 0 ? req.signedCookies : null;
-  console.log(cookies);
   if (cookies) {
     try {
       token = cookies[process.env.COOKIE_NAME];
@@ -12,10 +11,10 @@ const checkLogin = (req, res, next) => {
 
       next();
     } catch (err) {
-      res.status(500).send(err.message);
+      next(err.message);
     }
   } else {
-    res.redirect("/");
+    next("Sorry! Something went wrong.");
   }
 };
 
