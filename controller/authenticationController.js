@@ -1,5 +1,4 @@
 const bcrypt = require("bcrypt");
-const createHttpError = require("http-errors");
 const jwt = require("jsonwebtoken");
 const connection = require("../database/databaseConfig");
 
@@ -13,40 +12,48 @@ async function login(req, res, next) {
     const user = `SELECT * FROM authentication WHERE email='${email}'`;
     connection.query(user, (err, result) => {
       if (result.length) {
-        bcrypt.compare(
-          password,
-          result[0].password,
-          function (err, isValidPassword) {
-            console.log(isValidPassword);
-            if (isValidPassword) {
-              const userObj = {
-                email: result[0].email,
-                role: result[0].role,
-              };
-              //generate token
-              const token = jwt.sign(userObj, process.env.JWT_SECRET, {
-                expiresIn: process.env.JWT_EXPIRY,
-              });
+        if (result[0].status === "Approved") {
+          bcrypt.compare(
+            password,
+            result[0].password,
+            function (err, isValidPassword) {
+              if (isValidPassword) {
+                const userObj = {
+                  authentication_id: result[0].authentication_id,
+                  email: result[0].email,
+                  role: result[0].role,
+                };
+                //generate token
+                const token = jwt.sign(userObj, process.env.JWT_SECRET, {
+                  expiresIn: process.env.JWT_EXPIRY,
+                });
+                console.log(token);
 
-              //set cookie
-              res.cookie(process.env.COOKIE_NAME, token, {
-                maxAge: process.env.JWT_EXPIRY,
-                httpOnly: true,
-                signed: true,
-              });
-              //
-              res.status(200).json(userObj);
-            } else {
-              res.status(500).json({ msg: "Sorry! Something went wrong." });
+                //set cookie
+                res.cookie(process.env.COOKIE_NAME, token, {
+                  maxAge: process.env.JWT_EXPIRY,
+                  httpOnly: true,
+                  signed: true,
+                });
+                //
+                res.status(200).json(userObj);
+              } else {
+                res.json({ msg: "Invalid email or password." });
+              }
             }
-          }
-        );
+          );
+        } else {
+          res.json({
+            status: 500,
+            msg: "Your account is not verified yet.",
+          });
+        }
       } else {
-        res.status(500).send("Email or password doesnot match.");
+        res.json({ msg: "Invalid email or password." });
       }
     });
   } catch (err) {
-    next(err.message);
+    res.json({ status: 500, msg: err.message });
   }
 }
 
@@ -58,10 +65,10 @@ async function keepLogin(req, res, next) {
     if (req.user.email) {
       return res.status(200).send(req.user);
     } else {
-      return res.status(500).send("Sorry! Something went wrong.");
+      return res.redirect("/");
     }
   } catch (err) {
-    return res.status(500).send(err.message);
+    return res.json({ msg: err.message });
   }
 }
 //logout controller

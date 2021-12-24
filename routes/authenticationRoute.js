@@ -6,6 +6,10 @@ const {
   keepLogin,
 } = require("../controller/authenticationController");
 const { checkLogin } = require("../middlewares/checkLogin");
+const {
+  addUserValidators,
+  addUserValidationHandler,
+} = require("../middlewares/userValidator");
 
 router.post("/login", login);
 //router.delete("/logout", logout);

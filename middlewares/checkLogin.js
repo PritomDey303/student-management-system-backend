@@ -6,15 +6,20 @@ const checkLogin = (req, res, next) => {
   if (cookies) {
     try {
       token = cookies[process.env.COOKIE_NAME];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded;
+      jwt.verify(token, process.env.JWT_SECRET, (err, data) => {
+        if (err) {
+          res.json({ msg: "Invalid User!" });
+        } else {
+          req.user = data;
+        }
+      });
 
       next();
     } catch (err) {
-      next(err.message);
+      res.json({ msg: err.message });
     }
   } else {
-    next("Sorry! Something went wrong.");
+    res.json({ msg: "Invalid User!" });
   }
 };
 
