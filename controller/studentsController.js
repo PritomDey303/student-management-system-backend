@@ -3,10 +3,10 @@ const { sendMail } = require("../middlewares/nodeMailer");
 
 async function allStudents(req, res, next) {
   try {
-    if (req.user.role === 2) {
+    if (req.user.role === 1) {
       const students = `SELECT * FROM students 
       JOIN personalinfo ON students.student_id=personalinfo.student
-      JOIN educationinfo ON students.student_id=educationinfo.student`;
+      JOIN educationinfo ON students.student_id=educationinfo.student ORDER BY student_id ASC`;
       connection.query(students, (err, result) => {
         if (err) {
           res.status(500).send(err.message);
@@ -26,18 +26,29 @@ async function allStudents(req, res, next) {
 async function loggedInStudent(req, res, next) {
   console.log(req.user);
   try {
-    if (req.user.role === 1) {
-      const students = `SELECT * FROM students 
-      JOIN personalinfo ON students.student_id=personalinfo.student
-      JOIN educationinfo ON students.student_id=educationinfo.student`;
+    if (req.user.role === 2) {
+      const student = `SELECT *,authentication.email FROM students
+      JOIN educationinfo ON educationinfo.student=students.student_id
+      JOIN personalinfo ON  personalinfo.student=students.student_id
+      JOIN hall ON hall.hall_id=students.hall 
+      JOIN semester ON  semester.semester_id=students.currentSemester
+      JOIN authentication ON authentication.authentication_id=students.authentication
+       WHERE students.authentication='${req.user.authentication_id}'`;
       connection.query(student, (err, result) => {
         if (err) {
-          res.status(500).send("Sorry! Something went wrong.");
+          console.log(err.message);
+
+          res.json({
+            status: 500,
+            msg: err.message,
+          });
         } else {
+          console.log(result);
           res.status(200).send(result);
         }
       });
     } else {
+      console.log("here2");
       res.status(500).send("Sorry! Something went wrong!").redirect("/");
     }
   } catch (err) {
@@ -49,29 +60,49 @@ async function loggedInStudent(req, res, next) {
 async function singleStudentById(req, res, next) {
   try {
     if (req.user.role === 1) {
-      const student = `SELECT * FROM students WHERE student_id=${req.params.id}`;
+      const student = `SELECT *,authentication.email FROM students
+      JOIN educationinfo ON educationinfo.student=students.student_id
+      JOIN personalinfo ON  personalinfo.student=students.student_id
+      JOIN hall ON hall.hall_id=students.hall 
+      JOIN semester ON  semester.semester_id=students.currentSemester
+      JOIN authentication ON authentication.authentication_id=students.authentication
+       WHERE student_id=${req.params.id}`;
       connection.query(student, (err, result) => {
         if (err) {
-          res.status(500).send(err.message);
+          res.json({
+            status: 500,
+            msg: err.message,
+          });
         } else {
           res.status(200).send(result);
         }
       });
     } else {
-      res.status(500).send("You are not allowed to visit").redirect("/");
+      res
+        .json({
+          status: 500,
+          msg: "You are not allowed to visit this route.",
+        })
+        .redirect("/");
     }
   } catch (err) {
-    res.status(500).send(err.message);
+    res.json({
+      status: 500,
+      msg: err.message,
+    });
   }
 }
 
 //filtered students
 
 async function filteredstudents(req, res, next) {
-  const student_id = req.body.student_id;
-  const name = req.body.name;
-  const session = req.body.session;
-  const semester = req.body.semester;
+  console.log(req.query);
+  const student_id =
+    req.query.student_id === "" ? undefined : req.query.student_id;
+  const name = req.query.name === "" ? undefined : req.query.name;
+  const session = req.query.session === "" ? undefined : req.query.session;
+  const semester =
+    req.query.current_semester === "" ? undefined : req.query.current_semester;
   console.log(student_id, name, session, semester);
 
   try {
@@ -84,54 +115,69 @@ async function filteredstudents(req, res, next) {
         semester !== undefined
       ) {
         students += " WHERE";
-      }
-      if (name != undefined) {
-        students += ` name LIKE  '%${name}%'`;
-      }
-      if (student_id !== undefined) {
-        if (name) {
-          students += ` AND student_id =
+
+        if (name != undefined) {
+          students += ` name LIKE  '%${name}%'`;
+        }
+        if (student_id !== undefined) {
+          if (name) {
+            students += ` AND student_id =
            ${parseInt(student_id)} `;
-        } else {
-          students += ` student_id =
+          } else {
+            students += ` student_id =
            ${parseInt(student_id)} `;
+          }
         }
+        if (session !== undefined) {
+          if (name || student_id) {
+            students += ` AND session='${session}'`;
+          } else {
+            students += ` session='${session}'`;
+          }
+        }
+        if (semester !== undefined) {
+          if (name || student_id || session) {
+            students += " AND currentSemester= " + parseInt(semester);
+          } else {
+            students += " currentSemester= " + parseInt(semester);
+          }
+        }
+        console.log(students);
+        connection.query(students, (err, result) => {
+          if (err) {
+            res.json({
+              status: 500,
+              msg: err.message,
+            });
+          } else {
+            res.json({
+              status: 200,
+              data: result,
+            });
+          }
+        });
+      } else {
+        res.json({
+          status: 500,
+          msg: "No student found.",
+        });
       }
-      if (session !== undefined) {
-        if (name || student_id) {
-          students += " AND session = " + `${session}`;
-        } else {
-          students += ` session='${session}'`;
-        }
-      }
-      if (semester !== undefined) {
-        if (name || student_id || session) {
-          students += " AND currentSemester= " + parseInt(semester);
-        } else {
-          students += " currentSemester= " + parseInt(semester);
-        }
-      }
-      console.log(students);
-      connection.query(students, (err, result) => {
-        if (err) {
-          console.log("here");
-          res.status(500).send(err.message);
-        } else {
-          res.status(200).send(result);
-        }
-      });
-    } else {
-      res.redirect("/");
     }
   } catch (err) {
-    res.status(500).send(err.message);
+    res.json({
+      status: 500,
+      msg: err.message,
+    });
   }
 }
 /////////////////////
 //get pending students
 async function getPendingStudents(req, res, next) {
   try {
-    const pendingstudents = ` SELECT * FROM authentication  JOIN students ON students.authentication=authentication.authentication_id WHERE role=1 AND status="Pending"`;
+    const pendingstudents = ` SELECT * FROM authentication  JOIN students ON students.authentication=authentication.authentication_id 
+    JOIN hall ON hall.hall_id=students.hall 
+    JOIN semester on semester.semester_id=students.currentSemester
+    WHERE role=2 AND status="Pending"`;
 
     connection.query(pendingstudents, (err, result) => {
       if (err) {

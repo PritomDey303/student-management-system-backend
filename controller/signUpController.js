@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 
 async function studentEmailVerificaton(req, res, next) {
-  console.log("here come");
   const imgurl = req.imgurl;
   const { student_id, name, email, session, hall, semester, password, role } =
     req.body;

@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const checkLogin = (req, res, next) => {
+async function checkLogin(req, res, next) {
   let cookies =
     Object.keys(req.signedCookies).length > 0 ? req.signedCookies : null;
   if (cookies) {
@@ -21,7 +21,7 @@ const checkLogin = (req, res, next) => {
   } else {
     res.json({ msg: "Invalid User!" });
   }
-};
+}
 
 const redirectLoggedIn = function (req, res, next) {
   let cookies =

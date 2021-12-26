@@ -9,7 +9,6 @@ async function imgUploader(req, res, next) {
       });
     }
     let sampleFile = req.files.id_img;
-    console.log(sampleFile);
     if (sampleFile.size <= 500000) {
       if (
         sampleFile.mimetype === "image/jpeg" ||
@@ -21,7 +20,6 @@ async function imgUploader(req, res, next) {
 
         await sampleFile.mv(uploadPath);
         const urlObject = await imgur.uploadFile(uploadPath);
-        console.log(urlObject);
         fs.unlinkSync(uploadPath);
         req.imgurl = urlObject.link;
         next();

@@ -13,7 +13,7 @@ const { checkLogin } = require("../middlewares/checkLogin");
 const router = express.Router();
 //routes
 router.get("/allstudents", checkLogin, allStudents);
-router.get("/singlestudent", checkLogin, loggedInStudent);
+router.get("/loggedinstudent", checkLogin, loggedInStudent);
 router.get("/selectstudentbyid/:id", checkLogin, singleStudentById);
 router.get("/filterstudents", checkLogin, filteredstudents);
 router.get("/pendingstudents", getPendingStudents);
