@@ -7,6 +7,7 @@ const signUpRoute = require("./routes/signUpRoute");
 const academicInfoRoute = require("./routes/academicInfoRoute");
 const studentsRoute = require("./routes/studentsRoute");
 const adminRoute = require("./routes/adminRoute");
+const personalInfoRoute = require("./routes/personalInfoRoute");
 //cookie parser
 const cookieParser = require("cookie-parser");
 
@@ -46,7 +47,7 @@ app.use("/signup", signUpRoute);
 app.use("/academicinfo", academicInfoRoute);
 app.use("/students", studentsRoute);
 app.use("/admin", adminRoute);
-
+app.use("/personalinfo", personalInfoRoute);
 //not found handler
 app.use(notFoundHandler);
 //errorHandler
