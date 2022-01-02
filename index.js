@@ -8,6 +8,8 @@ const academicInfoRoute = require("./routes/academicInfoRoute");
 const studentsRoute = require("./routes/studentsRoute");
 const adminRoute = require("./routes/adminRoute");
 const personalInfoRoute = require("./routes/personalInfoRoute");
+const educationInfoRoute = require("./routes/educationInfoRoute");
+const resultRoute = require("./routes/resultRoute");
 //cookie parser
 const cookieParser = require("cookie-parser");
 
@@ -48,6 +50,8 @@ app.use("/academicinfo", academicInfoRoute);
 app.use("/students", studentsRoute);
 app.use("/admin", adminRoute);
 app.use("/personalinfo", personalInfoRoute);
+app.use("/educationinfo", educationInfoRoute);
+app.use("/result", resultRoute);
 //not found handler
 app.use(notFoundHandler);
 //errorHandler

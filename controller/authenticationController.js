@@ -25,13 +25,13 @@ async function login(req, res, next) {
                 };
                 //generate token
                 const token = jwt.sign(userObj, process.env.JWT_SECRET, {
-                  expiresIn: process.env.JWT_EXPIRY,
+                  expiresIn: "2h",
                 });
                 console.log(token);
 
                 //set cookie
                 res.cookie(process.env.COOKIE_NAME, token, {
-                  maxAge: process.env.JWT_EXPIRY,
+                  maxAge: process.env.COOKIE_EXPIRY,
                   httpOnly: true,
                   signed: true,
                 });

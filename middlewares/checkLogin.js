@@ -8,6 +8,7 @@ async function checkLogin(req, res, next) {
       token = cookies[process.env.COOKIE_NAME];
       jwt.verify(token, process.env.JWT_SECRET, (err, data) => {
         if (err) {
+          console.log(err.message);
           res.json({ msg: "Invalid User!" });
         } else {
           req.user = data;
@@ -19,6 +20,8 @@ async function checkLogin(req, res, next) {
       res.json({ msg: err.message });
     }
   } else {
+    console.log("check here");
+
     res.json({ msg: "Invalid User!" });
   }
 }

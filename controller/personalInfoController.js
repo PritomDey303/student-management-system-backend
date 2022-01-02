@@ -1,4 +1,3 @@
-const e = require("express");
 const connection = require("../database/databaseConfig");
 
 //update personalinfo
@@ -153,7 +152,87 @@ async function getPersonalInfo(req, res, next) {
     });
   }
 }
+
+//get profile picture
+async function getProfilePicture(req, res, next) {
+  try {
+    if (req.user.role === 2) {
+      const query = `SELECT students.student_id,personalinfo.profile_picture from students JOIN personalinfo ON students.student_id=personalinfo.student  WHERE authentication='${req.user.authentication_id}'`;
+      connection.query(query, (err, result) => {
+        if (err) {
+          res.json({
+            status: 500,
+            msg: err.message,
+          });
+        } else {
+          res.send(result[0]);
+        }
+      });
+    } else {
+      res.json({
+        status: 500,
+        msg: "Invalid User.",
+      });
+    }
+  } catch (err) {
+    res.json({
+      status: 500,
+      msg: err.message,
+    });
+  }
+}
+
+//update profile picture
+async function updateProfilePicture(req, res, next) {
+  if (req.user.role === 2) {
+    try {
+      const selectQuery = `SELECT student_id FROM students WHERE students.authentication='${req.user.authentication_id}'`;
+      connection.query(selectQuery, (err, result1) => {
+        if (err) {
+          res.json({
+            status: 500,
+            msg: err.message,
+          });
+        } else {
+          if (result1.length) {
+            const updateQuery = `Update personalinfo SET profile_picture='${req.imgurl}' WHERE student=${result1[0].student_id}`;
+            connection.query(updateQuery, (err, result2) => {
+              if (err) {
+                res.json({
+                  status: 500,
+                  msg: err.message,
+                });
+              } else {
+                res.json({
+                  status: 200,
+                  msg: "Profile picture updated successfully.",
+                });
+              }
+            });
+          } else {
+            res.json({
+              status: 500,
+              msg: "Invalid User",
+            });
+          }
+        }
+      });
+    } catch (err) {
+      res.json({
+        status: 500,
+        msg: err.message,
+      });
+    }
+  } else {
+    res.json({
+      status: 500,
+      msg: "Invalid User",
+    });
+  }
+}
 module.exports = {
   updatePersonalInfo,
   getPersonalInfo,
+  getProfilePicture,
+  updateProfilePicture,
 };

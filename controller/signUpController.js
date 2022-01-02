@@ -2,7 +2,6 @@ const connection = require("../database/databaseConfig");
 const bcrypt = require("bcrypt");
 const { mailTransporter } = require("./../middlewares/nodeMailer");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
 
 async function studentEmailVerificaton(req, res, next) {
   const imgurl = req.imgurl;
@@ -52,7 +51,7 @@ async function studentEmailVerificaton(req, res, next) {
                   userEncryptedData,
                   process.env.JWT_SECRET,
                   {
-                    expiresIn: process.env.JWT_EXPIRY,
+                    expiresIn: "1h",
                   }
                 );
 
@@ -97,7 +96,7 @@ async function studentSignUp(req, res, next) {
       jwt.verify(token, process.env.JWT_SECRET, (err, data) => {
         if (err) {
           console.log(err.message);
-          res.json({ status: 500, msg: "Sorry! Something went wrong.jwt" });
+          res.json({ status: 500, msg: "Sorry! Something went wrong.1" });
         } else {
           const {
             authentication_id,
@@ -118,21 +117,44 @@ async function studentSignUp(req, res, next) {
             if (err) {
               res.json({
                 status: 500,
-                msg: "Sorry! Something went wrong.",
+                msg: "Sorry! Something went wrong.2",
               });
             } else {
-              const studentInsertQuery = `INSERT INTO students(student_id, name, session,hall,  currentSemester,id_img,authentication) VALUES (${student_id},'${name}','${session}',${hall},${currentSemester},'${id_img}','${authentication_id}')`;
+              const studentInsertQuery = `INSERT INTO students(student_id, name, session,hall,  currentSemester,id_img,authentication) VALUES (${student_id},'${name}','${session}',${hall},${currentSemester},'${id_img}','${authentication_id}') `;
+              console.log(studentInsertQuery);
               connection.query(studentInsertQuery, (err, result2) => {
                 if (err) {
                   res.json({
                     status: 500,
-                    msg: "Sorry! Something went wrong.",
+                    msg: "Sorry! Something went wrong.3",
                     errMsg: err.message,
                   });
                 } else {
-                  res.json({
-                    status: 200,
-                    msg: "Congrats! Sign up successful.Please wait for verification. You will be notified by mail if your account is verified.",
+                  const personalInfoQuery = `INSERT INTO personalinfo(student) VALUES (${student_id})`;
+                  connection.query(personalInfoQuery, (err, result3) => {
+                    if (err) {
+                      res.json({
+                        status: 500,
+                        msg: "Sorry! Something went wrong.3",
+                        errMsg: err.message,
+                      });
+                    } else {
+                      const educationInfoQuery = `INSERT INTO educationinfo(student)  VALUES(${student_id})`;
+                      connection.query(educationInfoQuery, (err, result4) => {
+                        if (err) {
+                          res.json({
+                            status: 500,
+                            msg: "Sorry! Something went wrong.3",
+                            errMsg: err.message,
+                          });
+                        } else {
+                          res.json({
+                            status: 200,
+                            msg: "Congrats! Sign up successful.Please wait for verification. You will be notified by mail if your account is verified.",
+                          });
+                        }
+                      });
+                    }
                   });
                 }
               });
@@ -143,7 +165,7 @@ async function studentSignUp(req, res, next) {
     } else {
       res.json({
         status: 500,
-        msg: "Sorry! Something went wrong.",
+        msg: "Sorry! Something went wrong.4",
         errMsg: err.message,
       });
     }
@@ -151,7 +173,7 @@ async function studentSignUp(req, res, next) {
     console.log(err.message);
     res.json({
       status: 500,
-      msg: "Sorry! Something went wrong.",
+      msg: "Sorry! Something went wrong.5",
       errMsg: err.message,
     });
   }
@@ -188,7 +210,7 @@ async function adminEmailVerification(req, res, next) {
             name: name,
           };
           const token = jwt.sign(adminData, process.env.JWT_SECRET, {
-            expiresIn: process.env.JWT_EXPIRY,
+            expiresIn: process.env.SIGNUP_EXPIRY,
           });
 
           req.token = token;
@@ -217,7 +239,6 @@ async function adminEmailVerification(req, res, next) {
 
 //////////////////////////////////
 async function adminSignUp(req, res, next) {
-  console.log("pritom");
   const { token } = req.body;
   try {
     jwt.verify(token, process.env.JWT_SECRET, (err, data) => {

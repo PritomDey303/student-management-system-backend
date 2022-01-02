@@ -6,10 +6,13 @@ async function allStudents(req, res, next) {
     if (req.user.role === 1) {
       const students = `SELECT * FROM students 
       JOIN personalinfo ON students.student_id=personalinfo.student
-      JOIN educationinfo ON students.student_id=educationinfo.student ORDER BY student_id ASC`;
+      JOIN educationinfo ON students.student_id=educationinfo.student JOIN hall ON students.hall=hall.hall_id JOIN semester ON semester.semester_id=students.currentSemester ORDER BY student_id DESC`;
       connection.query(students, (err, result) => {
         if (err) {
-          res.status(500).send(err.message);
+          res.json({
+            status: 500,
+            msg: err.message,
+          });
         } else {
           res.status(200).send(result);
         }
@@ -18,7 +21,10 @@ async function allStudents(req, res, next) {
       res.redirect("/");
     }
   } catch (err) {
-    res.status(500).send(err.message);
+    res.json({
+      status: 500,
+      msg: err.message,
+    });
   }
 }
 
@@ -96,18 +102,16 @@ async function singleStudentById(req, res, next) {
 //filtered students
 
 async function filteredstudents(req, res, next) {
-  console.log(req.query);
   const student_id =
     req.query.student_id === "" ? undefined : req.query.student_id;
   const name = req.query.name === "" ? undefined : req.query.name;
   const session = req.query.session === "" ? undefined : req.query.session;
   const semester =
     req.query.current_semester === "" ? undefined : req.query.current_semester;
-  console.log(student_id, name, session, semester);
 
   try {
     if (req.user.role === 1) {
-      let students = `SELECT * FROM students JOIN personalinfo ON students.student_id=personalinfo.student JOIN educationinfo ON students.student_id=educationinfo.student`;
+      let students = `SELECT * FROM students JOIN personalinfo ON students.student_id=personalinfo.student JOIN educationinfo ON students.student_id=educationinfo.student JOIN semester ON semester.semester_id=students.currentSemester JOIN hall ON hall.hall_id=students.hall`;
       if (
         name !== undefined ||
         student_id !== undefined ||
@@ -142,7 +146,7 @@ async function filteredstudents(req, res, next) {
             students += " currentSemester= " + parseInt(semester);
           }
         }
-        console.log(students);
+        students += " ORDER BY student_id ASC";
         connection.query(students, (err, result) => {
           if (err) {
             res.json({
@@ -250,9 +254,11 @@ async function declineStudent(req, res, next) {
         });
       } else {
         if (result1.length) {
-          const declineStudent = `DELETE authentication,students  FROM authentication
-  INNER JOIN students  ON authentication.authentication_id=students.authentication
-  WHERE authentication.authentication_id='${id}'`;
+          const declineStudent = `DELETE authentication,students,personalinfo,educationinfo  FROM authentication
+               INNER JOIN students  ON authentication.authentication_id=students.authentication
+               INNER JOIN personalinfo  ON personalinfo.student=students.student_id
+               INNER JOIN educationinfo  ON educationinfo.student=students.student_id
+               WHERE authentication.authentication_id='${id}'`;
           connection.query(declineStudent, (err, result2) => {
             if (err) {
               res.json({
