@@ -6,6 +6,7 @@ const connection = require("../database/databaseConfig");
 async function login(req, res, next) {
   const email = req.body.email;
   const password = req.body.password;
+  console.log("email");
 
   try {
     //query
@@ -62,12 +63,12 @@ async function login(req, res, next) {
 async function keepLogin(req, res, next) {
   try {
     if (req.user.email) {
-      return res.status(200).send(req.user);
+      res.status(200).send(req.user);
     } else {
-      return res.redirect("/");
+      res.redirect("/");
     }
   } catch (err) {
-    return res.json({ msg: err.message });
+    res.json({ msg: err.message });
   }
 }
 //logout controller

@@ -20,7 +20,6 @@ const fileUpload = require("express-fileupload");
 const { errorHandler } = require("./middlewares/errorHandler");
 const connection = require("./database/databaseConfig");
 //port
-const port = process.env.PORT || 5000;
 //database config
 connection.connect((err) => {
   if (err) {
@@ -33,7 +32,8 @@ connection.connect((err) => {
 //cors
 app.use(
   cors({
-    origin: "*",
+    origin: process.env.CLIENT_SITE_DOMAIN,
+    methods: ["GET", "POST", " DELETE", "UPDATE", "PUT", " PATCH"],
     credentials: true,
   })
 );

@@ -6,9 +6,9 @@ async function checkLogin(req, res, next) {
   if (cookies) {
     try {
       token = cookies[process.env.COOKIE_NAME];
+      console.log(token);
       jwt.verify(token, process.env.JWT_SECRET, (err, data) => {
         if (err) {
-          console.log(err.message);
           res.json({ msg: "Invalid User!" });
         } else {
           req.user = data;
