@@ -1,11 +1,11 @@
 const mysql = require("mysql");
 
 const databaseConnectionConfig = {
-  host: "localhost",
-  user: "root",
-  port: 3307,
-  password: "",
-  database: "student_management_system",
+  host: "sql11.freemysqlhosting.net",
+  user: "sql11502883",
+  port: 3306,
+  password: "BCXSbXGNsr",
+  database: "sql11502883",
 };
 
 //create connection
