@@ -126,7 +126,7 @@ async function studentSignUp(req, res, next) {
                 if (err) {
                   res.json({
                     status: 500,
-                    msg: "Sorry! Something went wrong.3",
+                    msg: "Sorry! Something went wrong.",
                     errMsg: err.message,
                   });
                 } else {

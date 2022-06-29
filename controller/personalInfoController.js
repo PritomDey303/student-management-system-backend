@@ -3,7 +3,6 @@ const connection = require("../database/databaseConfig");
 //update personalinfo
 
 async function updatePersonalInfo(req, res, next) {
-  console.log(req.body);
   const selectStudent = `SELECT authentication_id,students.student_id FROM authentication JOIN students ON students.authentication=authentication.authentication_id WHERE authentication_id='${req.body.authentication_id}'`;
   connection.query(selectStudent, (err, result) => {
     if (err) {

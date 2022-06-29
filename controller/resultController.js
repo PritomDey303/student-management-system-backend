@@ -63,12 +63,10 @@ async function updateResult(req, res, next) {
       loopArr.map((result) => {
         const { key, resultant } = result;
         if (resultant !== "" && resultant) {
-          console.log("I am here");
           const selectQuery1 = `SELECT * FROM result WHERE student=${student_id} AND semester=${key}`;
 
           connection.query(selectQuery1, (err, result1) => {
             if (err) {
-              console.log(err.message + "1");
               res.json({
                 status: 500,
                 msg: err.message,
@@ -88,7 +86,6 @@ async function updateResult(req, res, next) {
                 }
               });
             } else {
-              console.log("here");
               const insertQuery1 = `INSERT INTO result(gpa,student,semester) VALUES('${resultant}',${student_id},${key})`;
               connection.query(insertQuery1, (err, result12) => {
                 if (err) {

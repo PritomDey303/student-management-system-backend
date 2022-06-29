@@ -16,12 +16,18 @@ const cookieParser = require("cookie-parser");
 //importing middlewares
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
-const {
-  errorHandler,
-  notFoundHandler,
-} = require("c:/users/walton/documents/chat-application/middlewares/common/errorhandler");
+const { errorHandler } = require("./middlewares/errorHandler");
+const connection = require("./database/databaseConfig");
 //port
-const port = 5000;
+const port = process.env.PORT || 5000;
+//database config
+connection.connect((err) => {
+  if (err) {
+    console.log("connection failed.aaaa");
+  } else {
+    console.log("connection successful!");
+  }
+});
 
 //cors
 app.use(
@@ -52,8 +58,7 @@ app.use("/admin", adminRoute);
 app.use("/personalinfo", personalInfoRoute);
 app.use("/educationinfo", educationInfoRoute);
 app.use("/result", resultRoute);
-//not found handler
-app.use(notFoundHandler);
+
 //errorHandler
 app.use(errorHandler);
 app.listen(port);
