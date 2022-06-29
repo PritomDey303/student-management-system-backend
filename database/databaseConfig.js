@@ -1,11 +1,12 @@
 const mysql = require("mysql");
-
+const dotenv = require("dotenv");
+dotenv.config();
 const databaseConnectionConfig = {
-  host: "sql11.freemysqlhosting.net",
-  user: "sql11502883",
-  port: 3306,
-  password: "BCXSbXGNsr",
-  database: "sql11502883",
+  host: process.env.DATABASE_HOST,
+  user: process.env.DATABASE_USERNAME,
+  port: process.env.DATABASE_PORT,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
 };
 
 //create connection
