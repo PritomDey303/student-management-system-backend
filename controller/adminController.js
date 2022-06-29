@@ -21,11 +21,9 @@ async function getPendingAdmins(req, res, next) {
 //approve admin account
 async function approveAdmin(req, res, next) {
   const { id } = req.params;
-  console.log(req.params);
   try {
     const getAdmin = `SELECT * FROM authentication WHERE authentication_id='${id}' AND status='Pending'`;
     connection.query(getAdmin, (err, result) => {
-      console.log(result);
       if (err) {
         res.json({
           status: 500,

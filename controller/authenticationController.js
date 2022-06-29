@@ -27,7 +27,6 @@ async function login(req, res, next) {
                 const token = jwt.sign(userObj, process.env.JWT_SECRET, {
                   expiresIn: "2h",
                 });
-                console.log(token);
 
                 //set cookie
                 res.cookie(process.env.COOKIE_NAME, token, {

@@ -121,7 +121,7 @@ async function studentSignUp(req, res, next) {
               });
             } else {
               const studentInsertQuery = `INSERT INTO students(student_id, name, session,hall,  currentSemester,id_img,authentication) VALUES (${student_id},'${name}','${session}',${hall},${currentSemester},'${id_img}','${authentication_id}') `;
-              console.log(studentInsertQuery);
+
               connection.query(studentInsertQuery, (err, result2) => {
                 if (err) {
                   res.json({
