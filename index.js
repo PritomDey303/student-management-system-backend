@@ -62,4 +62,4 @@ app.use("/result", resultRoute);
 
 //errorHandler
 app.use(errorHandler);
-app.listen(port);
+app.listen(process.env.PORT || 5000);
