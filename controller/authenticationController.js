@@ -34,6 +34,8 @@ async function login(req, res, next) {
                   maxAge: process.env.COOKIE_EXPIRY,
                   httpOnly: true,
                   signed: true,
+                  secure: true,
+                  sameSite: Strict,
                 });
                 //
                 res.status(200).json(userObj);
